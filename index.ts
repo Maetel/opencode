@@ -1,9 +1,10 @@
 import * as readline from "readline";
 import { exec } from "child_process";
 import * as fs from "fs";
-let myoptions : null | {[key:string]:string} = null;
+import myoptions from "./options.json";
+// let myoptions : null | {[key:string]:string} = null;
 try{
-  myoptions = JSON.parse(fs.readFileSync("./options.json", "utf8"))
+  // myoptions = JSON.parse(fs.readFileSync("./options.json", "utf8"))
   if(!myoptions){
     throw new Error("myoptions.json파일이 필요합니다.");
   }
@@ -44,7 +45,6 @@ const { founds, notFounds } = initialOptions.reduce(
   },
   { founds: [] as string[], notFounds: [] as string[] }
 );
-console.log({founds, notFounds});
 const options: string[] = founds;
 
 if (options.length === 0) {
