@@ -2,8 +2,14 @@
   "name": "opencode",
   "module": "index.ts",
   "type": "module",
+  "author": {
+    "name": "Stan",
+    "email": "iamjam4944@gmail.com"
+  },
+  "license": "MIT",
   "scripts": {
-    "start": "bun run index.ts"
+    "start": "bun run index.ts",
+    "build": "bun build ./index.ts --compile --outfile opencode"
   },
   "devDependencies": {
     "bun-types": "latest"

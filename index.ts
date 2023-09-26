@@ -1,36 +1,64 @@
 import * as readline from "readline";
 import { exec } from "child_process";
-
-const initialOptions = [
-  "2dub-v2",
-  "2dub-v3",
-  "class",
-  "learning",
-  "solution",
-  "interview",
-  "interview-speech",
-] as const;
-
-const notFounds = [];
-const options: string[] = [];
-
-for (const option of initialOptions) {
-  if (process.env[option]) {
-    options.push(option);
-  } else {
-    notFounds.push(option);
+import * as fs from "fs";
+let myoptions : null | {[key:string]:string} = null;
+try{
+  myoptions = JSON.parse(fs.readFileSync("./options.json", "utf8"))
+  if(!myoptions){
+    throw new Error("myoptions.json파일이 필요합니다.");
   }
+} catch(e){
+  console.error(`options.json파일이 필요합니다.
+  예시 : 
+  {
+    "2dub-v2": "/Users/2meu36/work/web/2dub_web_v2",
+    "class": "/Users/2meu36/work/web/class_web_v2",
+    "learning": "/Users/2meu36/work/web/learning_web_v2",
+  }  
+  `);
+  process.exit(1);
 }
 
+const initialOptions = Object.keys(myoptions);
+const { founds, notFounds } = initialOptions.reduce(
+  (obj, key: string) => {
+    const path: string | undefined | null = myoptions[key];
+    if (!path || path?.length === 0) {
+      return {
+        founds: obj.founds,
+        notFounds: obj.notFounds.concat(key),
+      }
+    }
+    if (!fs.existsSync(path)) {
+      obj.notFounds.concat(key);
+      return {
+        founds: obj.founds,
+        notFounds: obj.notFounds.concat(key),
+      }
+    }
+    obj.founds.concat(key);
+    return {
+      founds: obj.founds.concat(key),
+      notFounds: obj.notFounds,
+    }
+  },
+  { founds: [] as string[], notFounds: [] as string[] }
+);
+console.log({founds, notFounds});
+const options: string[] = founds;
+
 if (options.length === 0) {
-  throw new Error("No env found");
+  throw new Error("No options found");
 }
 
 console.log(
   "=================================================================="
 );
-console.log(` Founds : ${options.map((o) => `"${o}"`).join(", ")}`);
-console.log(` Not Founds : ${notFounds.map((o) => `"${o}"`).join(", ")}`);
+
+options.length > 0 &&
+  console.log(` Founds : ${options.map((o) => `"${o}"`).join(", ")}`);
+notFounds.length > 0 &&
+  console.log(` Not Founds : ${notFounds.map((o) => `"${o}"`).join(", ")}`);
 
 // Create a readline interface for user input
 const rl = readline.createInterface({
@@ -46,7 +74,7 @@ function getUserInput() {
   rl.question(
     "Select an option :\n" +
       options.map((o, i) => `${i + 1}. ${o}`).join("\n") +
-      "\nQuit : q\nInput : ",
+      "\nQuit : q\n==================================================================\nInput : ",
     (choice) => {
       let exeCmd = "code";
       const cmds = ["open"];
@@ -55,11 +83,11 @@ function getUserInput() {
         choice = choice.replace(customCommand, "").trim();
         exeCmd = customCommand;
       }
-      console.log({choice});
       const splitter = choice.includes("/");
-      const additionalArgument = choice.split(splitter ? "/":" ").slice(1).join(" ");
-      console.log("additionalArgument", additionalArgument);
-
+      const additionalArgument = choice
+        .split(splitter ? "/" : " ")
+        .slice(1)
+        .join(" ");
       const toNumber = parseInt(choice);
       if (!isNaN(toNumber)) {
         const idx = toNumber - 1;
@@ -72,8 +100,11 @@ function getUserInput() {
         return;
       }
       if (options.includes(choice)) {
-        console.log(`Opening [${choice}]`);
-        const cmd = `${exeCmd} ${process.env[choice]}${splitter&&"/"}${additionalArgument}`;
+        const path = myoptions![choice];
+        const cmd = `${exeCmd} ${path}${
+          splitter ? "/" : ""
+        }${additionalArgument}`;
+        console.log(`Opening [${choice}] shell cmd [${cmd}]`);
         executeShellCommand(cmd, getUserInput);
         return;
       }

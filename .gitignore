@@ -1,4 +1,10 @@
+options.json
+opencode
+
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
+
+DS_Store
+Thumb.db
 
 # Logs
 
