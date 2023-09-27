@@ -9,7 +9,8 @@
   "license": "MIT",
   "scripts": {
     "start": "bun run index.ts",
-    "build": "bun build ./index.ts --compile --outfile opencode"
+    "build": "bun build ./index.ts --compile --outfile dist/opencode && bun run install:path",
+    "install:path": "bun run addToZshrc.ts"
   },
   "devDependencies": {
     "bun-types": "latest"

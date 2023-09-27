@@ -3,12 +3,12 @@ import { exec } from "child_process";
 import * as fs from "fs";
 import myoptions from "./options.json";
 // let myoptions : null | {[key:string]:string} = null;
-try{
+try {
   // myoptions = JSON.parse(fs.readFileSync("./options.json", "utf8"))
-  if(!myoptions){
+  if (!myoptions) {
     throw new Error("myoptions.json파일이 필요합니다.");
   }
-} catch(e){
+} catch (e) {
   console.error(`options.json파일이 필요합니다.
   예시 : 
   {
@@ -28,20 +28,20 @@ const { founds, notFounds } = initialOptions.reduce(
       return {
         founds: obj.founds,
         notFounds: obj.notFounds.concat(key),
-      }
+      };
     }
     if (!fs.existsSync(path)) {
       obj.notFounds.concat(key);
       return {
         founds: obj.founds,
         notFounds: obj.notFounds.concat(key),
-      }
+      };
     }
     obj.founds.concat(key);
     return {
       founds: obj.founds.concat(key),
       notFounds: obj.notFounds,
-    }
+    };
   },
   { founds: [] as string[], notFounds: [] as string[] }
 );
@@ -51,15 +51,6 @@ if (options.length === 0) {
   throw new Error("No options found");
 }
 
-console.log(
-  "=================================================================="
-);
-
-options.length > 0 &&
-  console.log(` Founds : ${options.map((o) => `"${o}"`).join(", ")}`);
-notFounds.length > 0 &&
-  console.log(` Not Founds : ${notFounds.map((o) => `"${o}"`).join(", ")}`);
-
 // Create a readline interface for user input
 const rl = readline.createInterface({
   input: process.stdin,
@@ -68,9 +59,16 @@ const rl = readline.createInterface({
 
 // Function to display options and get user input
 function getUserInput() {
+  console.clear();
   console.log(
     "=================================================================="
   );
+
+  options.length > 0 &&
+    console.log(` Founds : ${options.map((o) => `"${o}"`).join(", ")}`);
+  notFounds.length > 0 &&
+    console.log(` Not Founds : ${notFounds.map((o) => `"${o}"`).join(", ")}`);
+
   rl.question(
     "Select an option :\n" +
       options.map((o, i) => `${i + 1}. ${o}`).join("\n") +
